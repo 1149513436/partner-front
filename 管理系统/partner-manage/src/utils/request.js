@@ -1,21 +1,20 @@
 import { ElMessage } from 'element-plus'
 import router from '../router'
-import config from '../../config';
+import config from "/config";
 import axios from "axios";
-import {useUserStore} from '@/stores/user.js'
+import { useUserStore } from "@/stores/user";
+
 const request = axios.create({
     baseURL: `http://${config.serverUrl}`,
-    timeout: 5000
+    timeout: 5000  // 后台接口超时时间设置
 })
-// console.log("查看服务器请求地址",config.serverUrl);
+
 // request 拦截器
 // 可以自请求发送前对请求做一些处理
 // 比如统一加token，对请求参数统一加密
 request.interceptors.request.use(config => {
     config.headers['Content-Type'] = 'application/json;charset=utf-8';
-    // yml中设置的token名字
-   const token= useUserStore().getBearerToken
-    config.headers['Authorization'] = token;  // 设置请求头,Bearer是设置的前缀后有一个空格
+    config.headers['Authorization'] = useUserStore().getBearerToken;  // 设置请求头
     return config
 }, error => {
     return Promise.reject(error)
