@@ -17,7 +17,7 @@
     </div>
     <!-- 功能按钮区域 -->
     <div style="margin: 10px 0">
-      <el-button type="success" @click="handleAdd">
+      <el-button type="success" @click="handleAdd" v-if="auth.includes('user.add')">
         <el-icon style="vertical-align: middle">
           <Plus />
         </el-icon>  <span style="vertical-align: middle"> 新增 </span>
@@ -29,6 +29,7 @@
           :action='`http://${config.serverUrl}/user/import`'
           :on-success="handleImportSuccess"
           :headers="{ Authorization: token}"
+          v-if="auth.includes('user.import')"
       >
         <el-button type="primary">
           <el-icon style="vertical-align: middle">
@@ -36,12 +37,12 @@
           </el-icon>  <span style="vertical-align: middle"> 导入 </span>
         </el-button>
       </el-upload>
-      <el-button type="primary" @click="exportData" class="ml5">
+      <el-button type="primary" @click="exportData" class="ml5" v-if="auth.includes('user.export')">
         <el-icon style="vertical-align: middle">
           <Top />
         </el-icon>  <span style="vertical-align: middle"> 导出 </span>
       </el-button>
-      <el-popconfirm title="您确定删除吗？" @confirm="confirmDelBatch">
+      <el-popconfirm title="您确定删除吗？" @confirm="confirmDelBatch" v-if="auth.includes('user.delete')">
         <template #reference>
           <el-button type="danger" style="margin-left: 5px">
             <el-icon style="vertical-align: middle">
@@ -61,13 +62,13 @@
         <el-table-column prop="email" label="邮箱"></el-table-column>
         <el-table-column prop="role" label="角色">
           <template #default="scope">
-            <span v-if="roles.length">{{ roles.find(r=>r.flag===scope.row.role).name }}</span>
+            <span v-if="roles.length">{{roles.find(r=>r.flag===scope.row.role)? roles.find(r=>r.flag===scope.row.role).name:'' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180">
           <template #default="scope">
             <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-popconfirm title="您确定删除吗？" @confirm="del(scope.row.id)">
+            <el-popconfirm title="您确定删除吗？" @confirm="del(scope.row.id)" v-if="auth.includes('user.delete')">
               <template #reference>
                 <el-button type="danger">删除</el-button>
               </template>
@@ -123,14 +124,14 @@
   </div>
 </template>
 <script setup>
-import {
-  Search,
-  RefreshLeft,
-  Plus,
-  Bottom,
-  Top,
-  Remove
-} from '@element-plus/icons-vue'
+// import {
+//   Search,
+//   RefreshLeft,
+//   Plus,
+//   Bottom,
+//   Top,
+//   Remove
+// } from '@element-plus/icons-vue'
 import {reactive, ref} from "vue";
 import request from "@/utils/request";
 import {ElMessage} from "element-plus";
@@ -143,6 +144,7 @@ const pageNum = ref(1)
 const pageSize = ref(5)
 const total = ref(0)
 const roles=ref([])
+const auth=useUserStore().getAuths() //偏平化按钮权限
 const state = reactive({
   tableData: [],
   form: {}

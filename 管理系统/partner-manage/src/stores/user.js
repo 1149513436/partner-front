@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import router from "@/router";
+import { setRoutes } from '../router';
 
 export const useUserStore = defineStore('manager', {
     state: () => ({
@@ -22,6 +23,8 @@ export const useUserStore = defineStore('manager', {
     actions: {
         setManagerInfo(managerInfo) {
             this.managerInfo = managerInfo;
+            console.log("userjs",managerInfo.menus);
+            setRoutes(managerInfo.menus)
             // console.log(managerInfo);
         },
         setUser(user) {
@@ -35,8 +38,8 @@ export const useUserStore = defineStore('manager', {
             // console.log("@@", this.managerInfo.menus);
             return this.managerInfo.menus || []
         },
-        getAuths() {
-            return this.managerInfo.auths || []
+        getAuths() {//按钮权限
+            return this.managerInfo.auths.length ? this.managerInfo.auths.map(v=>v.auth) : []
         }
     },
     // 开启数据持久化

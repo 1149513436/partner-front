@@ -14,7 +14,7 @@ const router = createRouter({
       component: () => import('../views/Login/index.vue')
       // component:Login
     },
-  /*  {
+    {
       path: '/',
       name: 'layout',
       component:()=>import('@/layout/index.vue'),
@@ -24,7 +24,18 @@ const router = createRouter({
           path:'home',
           name:'Home',
           component:()=>import('@/views/HomeView.vue')
-        }, */
+        },
+        {
+          path:'person',
+          name:'Person',
+          component:()=>import('@/views/Person.vue')
+        },
+        {
+          path:'password',
+          name:'Password',
+          component:()=>import('@/views/password.vue')
+        }
+      ]}
        /*   {
           path:'user',
           name:'User',
@@ -53,43 +64,52 @@ const router = createRouter({
 
 //设置动态路由
 // 注意：刷新页面会导致页面路由重置
-export const setRoutes = () => {
-  const manager = localStorage.getItem('manager')//读取本地存储
-  if (!manager) {
-    return
-  }
-  const temp =JSON.parse(manager).managerInfo.menus
-
- let menus=[];
- for(let i=0;i<temp.length;i++){
-  menus.push(temp[i])
- }
-
-  console.log("得到的动态路由",menus);
-  //name: 'Layout',
-  let layoutRoute = { path: '/', name: 'Layout', component:()=>defineAsyncComponent(()=>import('../layout/index.vue')), redirect: "/home",
-  children: [
-    { path: 'home', name: 'Home',  component:defineAsyncComponent(()=>import('../views/HomeView.vue'))}
-  ]
-}
-  if (menus.length) {
-    // 拼装动态路由
-    let resultMenu= contrast(JSON.parse(JSON.stringify(menus)));
-    layoutRoute.children=layoutRoute.children.concat(resultMenu);
-    console.log("最终",layoutRoute);
-
-console.log("当前已有路由",router.getRoutes());
-    // 获取当前的路由对象名称数组
-    const currentRouteNames = router.getRoutes().map(v => v.name);
-    console.log("获取当前的路由对象名称数组",currentRouteNames);
-    if (!currentRouteNames.includes('Layout')) {
-      // 动态添加到现在的路由对象中去
-      // layoutRoute.children.forEach(item=>{
-      //   router.addRoute(layoutRoute.children);
-      // })
-      router.addRoute(layoutRoute)
-      // router.options.routes.push(layoutRoute.children)
+export const setRoutes = (temp) => {
+  if(!temp || !temp.length){
+    console.log("登录之后");
+    const manager = localStorage.getItem('manager')//读取本地存储
+    if (!manager) {
+      return
     }
+    temp =JSON.parse(manager).managerInfo.menus
+  }
+ 
+ 
+   
+
+  console.log("得到的动态路由",temp);
+  //name: 'Layout',
+/*   let layoutRoute = { 
+    path: '/', 
+    name: 'Layout', 
+    component:layoutModules['../layout/index.vue'],
+     redirect:'/home',
+  children: [
+    { path: 'home', name: 'Home',  component:modules['../views/HomeView.vue']}
+  ]
+} */
+  if (temp.length) {
+    // 拼装动态路由
+    let resultMenu= contrast(JSON.parse(JSON.stringify(temp)));
+    // console.log("resultMenu",resultMenu);
+    // layoutRoute.children=layoutRoute.children.concat(resultMenu);
+    // console.log("最终",layoutRoute);
+    resultMenu.forEach(item=>{
+      router.addRoute('layout',item)
+    })
+
+// console.log("当前已有路由",router.getRoutes());
+//     // 获取当前的路由对象名称数组
+//     const currentRouteNames = router.getRoutes().map(v => v.name);
+//     console.log("获取当前的路由对象名称数组",currentRouteNames);
+//     if (!currentRouteNames.includes('Layout')) {
+//       // 动态添加到现在的路由对象中去
+//       // layoutRoute.children.forEach(item=>{
+//       //   router.addRoute(layoutRoute.children);
+//       // })
+//       router.addRoute(layoutRoute)
+//       // router.options.routes.push(layoutRoute.children)
+//     }
   }
 }
 

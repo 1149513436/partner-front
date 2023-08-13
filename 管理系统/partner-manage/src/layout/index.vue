@@ -1,12 +1,12 @@
 <script setup>
 import {RouterView} from 'vue-router'
 import router from '@/router'
-import {
-  Document,
-  Menu as IconMenu,
-  Location,
-  Setting
-} from '@element-plus/icons-vue'
+// import {
+//   Document,
+//   Menu as IconMenu,
+//   Location,
+//   Setting
+// } from '@element-plus/icons-vue'
 import {useUserStore} from "@/stores/user";
 import request from "@/utils/request";
 import {ElMessage} from "element-plus";
@@ -46,6 +46,7 @@ const logout = () => {
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item><div @click="router.push('/person')">个人信息</div></el-dropdown-item>
+                  <el-dropdown-item><div @click="router.push('/password')">修改密码</div></el-dropdown-item>
                   <el-dropdown-item><div @click="logout">退出登录</div></el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -62,7 +63,7 @@ const logout = () => {
     <div style="min-height: calc(100vh - 60px);border-right: 1px solid #ccc;width: 200px;">
       <el-menu
             :default-active="'home'"
-            :default-openeds="['system']"
+            :default-openeds="['/permission']"
             class="el-menu-demo"
             style="border: none"
             router

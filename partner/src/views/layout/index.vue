@@ -9,8 +9,9 @@
             </div>
             <!-- 菜单区域 -->
             <div class="menu">
-                <el-menu :default-active="$route.path" class="el-menu-demo" mode="horizontal" router>
+                <el-menu :default-active="$route.path" class="el-menu-demo" mode="horizontal" router style="border:none">
                     <el-menu-item index="/home">首页</el-menu-item>
+                    <el-menu-item index="/im">聊天室</el-menu-item>
                     <el-sub-menu index="2">
                         <template #title>Workspace</template>
                         <el-menu-item index="2-1">item one</el-menu-item>
@@ -142,7 +143,7 @@ const logout=()=>{
 
     .main {
         width: 70%;
-       
+        min-height: calc(100vh - 80px);
         margin: 10px auto;
         background-color: azure;
 

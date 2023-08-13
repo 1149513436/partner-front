@@ -11,7 +11,8 @@ function initRoute(item){
     name: item.name,
     // 路由所在组件
     // component: (resolve) => require(['../views/'+item.page+'.vue'], resolve),
-    component:()=>defineAsyncComponent(()=>import('../views/'+item.page+'.vue')),
+   
+    component:modules['../views/' + item.page + '.vue'],
     // component:()=>modules[`../views/${item.page}.vue`],
     // meta: {
     //   id: item.id,

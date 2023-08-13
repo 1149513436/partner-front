@@ -15,6 +15,9 @@
             <el-sub-menu :index="item.path" :key="index" v-if="(item.children && item.children.length > 0)">
                 <template #title>
                     <i class="el-icon-s-cooperation"></i>
+                    <el-icon> 
+                  <component :is="item.icon"></component>
+                </el-icon>
                     <span >{{ item.name }}</span>
                 </template>
                 <el-menu-item-group>
@@ -26,6 +29,9 @@
             <el-menu-item :index="item.path" :key="(index + 100)" 
                 v-else  v-show="!item.hide" >
                 <i class="el-icon-menu"></i>
+                <el-icon> 
+                  <component :is="item.icon"></component>
+                </el-icon>
                 <span >{{ item.name }}</span>
             </el-menu-item>
         </template>

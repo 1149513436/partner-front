@@ -27,7 +27,8 @@ import { setRoutes } from "../../router";
             ElMessage.success('登录成功')
             const userStore = useUserStore()
             userStore.setManagerInfo(res.data)
-            setRoutes()
+            // setRoutes() //因为和上一行代码的顺序不是代码先后顺序，可能
+            //你的数据还没有存进去就已经用了
             router.push('/')
           } else {
             ElMessage.error(res.msg)

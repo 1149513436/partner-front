@@ -1,12 +1,12 @@
 <script setup>
-import {
-  Search,
-  RefreshLeft,
-  Plus,
-  Bottom,
-  Top,
-  Remove
-} from '@element-plus/icons-vue'
+// import {
+//   Search,
+//   RefreshLeft,
+//   Plus,
+//   Bottom,
+//   Top,
+//   Remove
+// } from '@element-plus/icons-vue'
 import {nextTick, reactive, ref} from "vue";
 import request from "@/utils/request";
 import {ElMessage} from "element-plus";
@@ -120,7 +120,8 @@ const save = () => {
           ElMessage.success('保存成功')
           dialogFormVisible.value = false
           state.form=''
-          load()  // 刷新表格数据
+          // load()  // 刷新表格数据
+          userStore.logout()
         } else {
           ElMessage.error(res.msg)
         }
@@ -135,8 +136,9 @@ const handleEdit = (raw) => {
   dialogFormVisible.value = true
   ruleFormRef.value='';
   console.log(raw.permissionIds);
+  
   if (!raw.permissionIds.length) {  // 设置无任何节点选择的状态
-      permissionTreeRef.value.setCheckedKeys([])
+    permissionTreeRef.value.setCheckedKeys([])
     }
     raw.permissionIds.forEach(v => {
       nextTick(()=>{//这里必须使用异步始终，因为第一次点击会报错导致permissionTreeRef.value还没有读到
@@ -277,7 +279,7 @@ const handleImportSuccess = () => {
         <el-form-item  label="权限">
           <div style="width:100%;border-radius:5px;border:1px solid #ccc">
             <el-tree show-checkbox :data="state.treeData" autocomplete="off" 
-            node-key="id" default-expand-all ref="permissionTreeRef"
+            node-key="id"  ref="permissionTreeRef"
             :props="{label:'name',value:'id'}"/>
           </div>
           

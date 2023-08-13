@@ -1,20 +1,11 @@
 <script setup>
-import {
-  Search,
-  RefreshLeft,
-  Plus,
-  Bottom,
-  Top,
-  Remove
-} from '@element-plus/icons-vue'
-import {reactive, ref} from "vue";
+import { nextTick, reactive, ref } from "vue";
 import request from "@/utils/request";
 import {ElMessage} from "element-plus";
 import config from "../../config";
 import {useUserStore} from "@/stores/user";
 
 const name = ref('')
-const address = ref('')
 const pageNum = ref(1)
 const pageSize = ref(5)
 const total = ref(0)
@@ -65,21 +56,11 @@ const reset = () => {
   load()
 }
 
-const currentChange = (num) => {
-  pageNum.value = num
-  load()
-}
-const sizeChange = (size) => {
-  pageSize.value = size
-  load()
-}
-
 const dialogFormVisible = ref(false)
 
 const rules = reactive({
-
   name: [
-    { required: true, message: '请输入姓名', trigger: 'blur' },
+    { required: true, message: '请输入名称', trigger: 'blur' },
   ]
 })
 const ruleFormRef = ref()
@@ -87,8 +68,10 @@ const ruleFormRef = ref()
 // 新增
 const handleAdd = () => {
   dialogFormVisible.value = true
-  ruleFormRef.value=''
-  state.form = {}
+  nextTick(() => {
+    ruleFormRef.value.resetFields()
+    state.form = {}
+  })
 }
 
 // 保存
@@ -96,14 +79,13 @@ const save = () => {
   ruleFormRef.value.validate(valid => {   // valid就是校验的结果
     if (valid) {
       request.request({
-        url: 'dynamic',
+        url: '/dynamic',
         method: state.form.id ? 'put' : 'post',
         data: state.form
       }).then(res => {
         if (res.code === '200') {
           ElMessage.success('保存成功')
           dialogFormVisible.value = false
-          state.form=''
           load()  // 刷新表格数据
         } else {
           ElMessage.error(res.msg)
@@ -115,10 +97,11 @@ const save = () => {
 
 // 编辑
 const handleEdit = (raw) => {
-  state.form = JSON.parse(JSON.stringify(raw))
   dialogFormVisible.value = true
-  ruleFormRef.value=''
-
+  nextTick(() => {
+    ruleFormRef.value.resetFields()
+    state.form = JSON.parse(JSON.stringify(raw))
+  })
 }
 
 // 删除
@@ -140,11 +123,21 @@ const exportData = () => {
 
 const userStore = useUserStore()
 const token = userStore.getBearerToken
+const auths =  userStore.getAuths()
 
 const handleImportSuccess = () => {
   // 刷新表格
   load()
   ElMessage.success("导入成功")
+}
+
+const handleFileUploadSuccess = (res) => {
+  state.form.file = res.data
+  ElMessage.success('上传成功')
+}
+const handleImgUploadSuccess = (res) => {
+  state.form.img = res.data
+  ElMessage.success('上传成功')
 }
 </script>
 
@@ -164,14 +157,15 @@ const handleImportSuccess = () => {
       </el-button>
 
     </div>
-    <!-- 功能按钮区域 -->
+
     <div style="margin: 10px 0">
-      <el-button type="success" @click="handleAdd">
+      <el-button type="success" @click="handleAdd" v-if="auths.includes('dynamic.add')">
         <el-icon style="vertical-align: middle">
           <Plus />
         </el-icon>  <span style="vertical-align: middle"> 新增 </span>
       </el-button>
       <el-upload
+          v-if="auths.includes('dynamic.import')"
           class="ml5"
           :show-file-list="false"
           style="display: inline-block; position: relative; top: 3px"
@@ -185,12 +179,12 @@ const handleImportSuccess = () => {
           </el-icon>  <span style="vertical-align: middle"> 导入 </span>
         </el-button>
       </el-upload>
-      <el-button type="primary" @click="exportData" class="ml5">
+      <el-button type="primary" @click="exportData" class="ml5" v-if="auths.includes('dynamic.export')">
         <el-icon style="vertical-align: middle">
           <Top />
         </el-icon>  <span style="vertical-align: middle"> 导出 </span>
       </el-button>
-      <el-popconfirm title="您确定删除吗？" @confirm="confirmDelBatch">
+      <el-popconfirm title="您确定删除吗？" @confirm="confirmDelBatch" v-if="auths.includes('dynamic.deleteBatch')">
         <template #reference>
           <el-button type="danger" style="margin-left: 5px">
             <el-icon style="vertical-align: middle">
@@ -200,21 +194,26 @@ const handleImportSuccess = () => {
         </template>
       </el-popconfirm>
     </div>
-      <!-- 表格 -->
+
     <div style="margin: 10px 0">
       <el-table :data="state.tableData" stripe border  @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="id" label="编号"></el-table-column>
-        <el-table-column prop="name" label="标题"></el-table-column>
-        <el-table-column prop="content" label="内容"></el-table-column>
-        <el-table-column prop="imgs" label="图片"></el-table-column>
-        <el-table-column prop="description" label="简介"></el-table-column>
         <el-table-column prop="uid" label="用户标识"></el-table-column>
-
+        <el-table-column prop="name" label="标题"></el-table-column>
+        <el-table-column prop="description" label="简介"></el-table-column>
+        <el-table-column prop="content" label="内容"></el-table-column>
+      
+        <el-table-column prop="id" label="编号"></el-table-column>
+        <el-table-column prop="img" label="图片">
+          <template #default="scope"><el-image preview-teleported style="width: 100px; height: 100px" :src="scope.row.img" :preview-src-list="[scope.row.img]"></el-image></template></el-table-column>
+      <el-table-column prop="description" label="简介"></el-table-column>
+       
+       
+       
         <el-table-column label="操作" width="180">
           <template #default="scope">
-            <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-popconfirm title="您确定删除吗？" @confirm="del(scope.row.id)">
+            <el-button type="primary" @click="handleEdit(scope.row)" v-if="auths.includes('dynamic.edit')">编辑</el-button>
+            <el-popconfirm title="您确定删除吗？" @confirm="del(scope.row.id)" v-if="auths.includes('dynamic.delete')">
               <template #reference>
                 <el-button type="danger">删除</el-button>
               </template>
@@ -223,11 +222,11 @@ const handleImportSuccess = () => {
         </el-table-column>
       </el-table>
     </div>
-<!-- 分页 -->
+
     <div style="margin: 10px 0">
       <el-pagination
-          @current-change="currentChange"
-          @size-change="sizeChange"
+          @current-change="load"
+          @size-change="load"
           v-model:current-page="pageNum"
           v-model:page-size="pageSize"
           background
@@ -237,23 +236,25 @@ const handleImportSuccess = () => {
       />
     </div>
 
-    <el-dialog v-model="dialogFormVisible" title="信息" width="40%">
+    <el-dialog v-model="dialogFormVisible" title="动态信息" width="40%">
       <el-form ref="ruleFormRef" :rules="rules" :model="state.form" label-width="80px" style="padding: 0 20px" status-icon>
         <el-form-item prop="name" label="标题">
           <el-input v-model="state.form.name" autocomplete="off" />
         </el-form-item>
-        <el-form-item prop="content" label="内容">
-          <el-input v-model="state.form.content" autocomplete="off" />
-        </el-form-item>
-        <el-form-item prop="imgs" label="图片">
-          <el-input v-model="state.form.imgs" autocomplete="off" />
-        </el-form-item>
         <el-form-item prop="description" label="简介">
           <el-input v-model="state.form.description" autocomplete="off" />
         </el-form-item>
-        <el-form-item prop="uid" label="用户标识">
-          <el-input v-model="state.form.uid" autocomplete="off" />
+        <el-form-item prop="content" label="内容">
+          <el-input v-model="state.form.content" type="textarea" autocomplete="off" />
         </el-form-item>
+      
+        <el-form-item prop="img" label="图片">
+          <el-upload :show-file-list="false" :action="`http://${config.serverUrl}/file/upload`" ref="file" :headers="{ Authorization: token}" :on-success="handleImgUploadSuccess">
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
+        </el-form-item>
+      
+       
 
       </el-form>
       <template #footer>

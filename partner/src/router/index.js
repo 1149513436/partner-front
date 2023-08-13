@@ -15,6 +15,11 @@ const router = createRouter({
         name: "home",
         component: () => import("../views/HomeView.vue"),
       },
+      {
+        path: "im",
+        name: "Im",
+        component: () => import("../views/im/index.vue"),
+      },
        {
         path: "user",
         name: "User",
@@ -26,6 +31,11 @@ const router = createRouter({
       path: "/login",
       name: "login",
       component: () => import("../views/Login/index.vue"),
+    },
+    {
+      path: "/test",
+      name: "test",
+      component: () => import("../components/wanghtml.vue"),
     },
     {
       path: "/register",
@@ -41,7 +51,8 @@ const router = createRouter({
     {
       path:'/:pathMatch(.*)',//vue3匹配404规则
       redirect:'/404'
-    }
+    },
+   
   ],
 });
 
@@ -52,7 +63,7 @@ router.beforeEach((to, from, next) => {
   console.log(store);
   const hasUser = user && user.id;  //先user后user.id。因为如果先user.id如果user为undefined就报错
   console.log("hasuser",hasUser);
-  if(to.path=='/register'||to.path=='/login'){
+  if(to.path=='/register'||to.path=='/login'||to.path=='/home'){
     // console.log("diyici");
     console.log("66");
     next()

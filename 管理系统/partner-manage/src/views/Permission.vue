@@ -40,7 +40,14 @@
         <el-table-column prop="name" label="名称"></el-table-column>
         <el-table-column prop="path" label="路径"></el-table-column>
         <el-table-column prop="orders" label="顺序"></el-table-column>
-        <el-table-column prop="icon" label="图标"></el-table-column>
+        <el-table-column prop="icon" label="图标">
+          <template #default="scope">
+            <el-icon>
+              <component :is=" scope.row.icon" />
+            </el-icon>
+           
+          </template>
+        </el-table-column>
         <el-table-column prop="page" label="页面路径"></el-table-column>
         <el-table-column prop="pid" label="父级id"></el-table-column>
         <el-table-column prop="auth" label="权限"></el-table-column>
@@ -48,7 +55,7 @@
           <template #default="scope">
             <el-tag type="warning" v-if="scope.row.type == 1">菜单目录</el-tag>
             <el-tag v-if="scope.row.type == 2">菜单页面</el-tag>
-            <el-tag type="success" v-if="scope.row.type == 3">页面按钮</el-tag>
+            <el-tag type="success" v-if="scope.row.type == 3">页面权限</el-tag>
             
           </template>
         </el-table-column>
@@ -90,7 +97,7 @@
           <el-radio-group v-model="state.form.type">
             <el-radio :label="1">菜单目录</el-radio>
             <el-radio :label="2">菜单页面</el-radio>
-            <el-radio :label="3">页面按钮</el-radio>
+            <el-radio :label="3">页面权限</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item prop="name" label="名称">
@@ -107,9 +114,18 @@
           <el-input-number v-model="state.form.orders" :min="1" />
         </el-form-item>
         <el-form-item prop="icon" label="图标">
-
-          <el-select v-model="state.form.icon" class="m-2" placeholder="选择图标">
-            <el-option v-for="item in icons" :key="item.value" :label="item.label" :value="item.value" />
+          <el-select v-model="state.form.icon"  placeholder="请选择" style="width: 100%">
+            <el-option
+                v-for="item in icons"
+                :key="item.id"
+                :label="item.code"
+                :value="item.value"
+            >
+              <el-icon>
+                <component :is="item.value"></component>
+              </el-icon>
+              <span style="font-size: 14px; margin-left: 5px; top: -3px">{{ item.code }}</span>
+            </el-option>
           </el-select>
         </el-form-item>
 
@@ -157,13 +173,14 @@ const pageNum = ref(1)
 const pageSize = ref(5)
 const total = ref(0)
 const options = reactive([])
-const icons = reactive([])
+let icons = reactive([])
 const state = reactive({
   tableData: [],
   form: {}
 })
 const multipleSelection = ref([])
-
+const auth=useUserStore().getAuths() //偏平化按钮权限
+// console.log("auth",auth);
 // 批量删除
 const handleSelectionChange = (val) => {
   multipleSelection.value = val
@@ -251,6 +268,11 @@ const handleEdit = (raw) => {
   state.form = JSON.parse(JSON.stringify(raw))
   dialogFormVisible.value = true
   ruleFormRef.value = ''
+
+  request.get('/dict/icons').then(res=>{
+    icons=res.data
+    console.log("icons",icons);
+  })
 }
 //表单树形控件点击
 const handleNodeClick=(data)=>{
